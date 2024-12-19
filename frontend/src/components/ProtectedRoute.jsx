@@ -1,18 +1,18 @@
-import {Navigate} from "react-router-dom"
-import {jwtDecode} from "jwt-decode"
-import api from "../api"
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants"
-import { useState, useEffect } from "react"
+import {Navigate} from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
+import api from "../api";
+import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
+import { useState, useEffect } from "react";
 
 function ProtectedRoute({children}) {
-    const [isAuthorized, setIsAuthenticated] = useState(null)
+    const [isAuthorized, setIsAuthenticated] = useState(null);
 
     useEffect(() => {
         auth().catch(() => setIsAuthenticated(false))
     }, [])
 
     const refreshToken = async () => {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN)
+        const refreshToken = localStorage.getItem(REFRESH_TOKEN);
         try {
             const res = await api.post("/api/token/refresh/", {refresh: refreshToken});
             if (res.status === 200) {
@@ -23,33 +23,33 @@ function ProtectedRoute({children}) {
             }
         } catch (error) {
             console.log(error)
-            setIsAuthenticated(false)
+            setIsAuthenticated(false);
         }
         
-    }
+    };
 
     const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN)
+        const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
-            setIsAuthenticated(false)
+            setIsAuthenticated(false);
             return
         }
-        const decoded = jwtDecode(token)
-        const tokenExpiration = decoded.exp
-        const now = Date.now() / 1000
+        const decoded = jwtDecode(token);
+        const tokenExpiration = decoded.exp;
+        const now = Date.now() / 1000;
 
         if (tokenExpiration < now) {
-            await refreshToken()
+            await refreshToken();
         } else {
-            setIsAuthenticated(true)
+            setIsAuthenticated(true);
         }
-    }
+    };
 
     if (isAuthorized=== null) {
         return <div>Loading...</div>
-    }
+    };
 
-    return isAuthorized ? children : <Navigate to="/login"/>
+    return isAuthorized ? children : <Navigate to="/login"/>;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;
